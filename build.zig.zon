@@ -1,0 +1,24 @@
+.{
+    .name = .opensim,
+    .version = "0.0.1",
+    .minimum_zig_version = "0.15.2",
+    .paths = .{
+        "src",
+        "libs",
+        "build.zig",
+        "build.zig.zon",
+    },
+    .dependencies = .{
+        .glfw = .{ .path = "libs/glfw" },
+        .jolt = .{
+            .path = "libs/JoltPhysics",
+        },
+        .imgui = .{
+            .path = "libs/imgui",
+        },
+        .vulkan_zig = .{
+            .path = "libs/vulkan-zig",
+        },
+    },
+    .fingerprint = 0xb0108dbc33b26910,
+}
