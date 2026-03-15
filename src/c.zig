@@ -4,6 +4,7 @@ pub const vk = @cImport({
 });
 
 pub const stb_image = @cImport({
+    @cDefine("STB_IMAGE_IMPLEMENTATION", "1");
     @cInclude("stb_image.h");
 });
 
