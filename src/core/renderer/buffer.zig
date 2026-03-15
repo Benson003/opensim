@@ -2,6 +2,17 @@ const std = @import("std");
 const vk = @import("../../c.zig").vk;
 const BufferErrors = error{ BufferCreationFailed, NoSuitableMemoryType, MemoryAllocationFailed, MemoryBindFailed, MemoryMapFailed };
 
+pub fn findMemoryType(physical_device: vk.VkPhysicalDevice, type_filter: u32, properties: vk.VkMemoryPropertyFlags) !u32 {
+    var mem_properties = std.mem.zeroes(vk.VkPhysicalDeviceMemoryProperties);
+    vk.vkGetPhysicalDeviceMemoryProperties(physical_device, &mem_properties);
+    for (mem_properties.memoryTypes[0..mem_properties.memoryTypeCount], 0..) |memory_type, i| {
+        if ((type_filter & (@as(u32, 1) << @intCast(i))) != 0 and (memory_type.propertyFlags & properties) == properties) {
+            return @intCast(i);
+        }
+    }
+    return BufferErrors.NoSuitableMemoryType;
+}
+
 pub const Buffer = struct {
     handle: vk.VkBuffer,
     memory: vk.VkDeviceMemory,
@@ -52,16 +63,5 @@ pub const Buffer = struct {
     pub fn deinit(self: *Buffer, device: vk.VkDevice) void {
         vk.vkDestroyBuffer(device, self.handle, null);
         vk.vkFreeMemory(device, self.memory, null);
-    }
-
-    fn findMemoryType(physical_device: vk.VkPhysicalDevice, type_filter: u32, properties: vk.VkMemoryPropertyFlags) !u32 {
-        var mem_properties = std.mem.zeroes(vk.VkPhysicalDeviceMemoryProperties);
-        vk.vkGetPhysicalDeviceMemoryProperties(physical_device, &mem_properties);
-        for (mem_properties.memoryTypes[0..mem_properties.memoryTypeCount], 0..) |memory_type, i| {
-            if ((type_filter & (@as(u32, 1) << @intCast(i))) != 0 and (memory_type.propertyFlags & properties) == properties) {
-                return @intCast(i);
-            }
-        }
-        return BufferErrors.NoSuitableMemoryType;
     }
 };

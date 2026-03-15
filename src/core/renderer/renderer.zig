@@ -21,6 +21,38 @@ pub const RenderContext = struct {
     extent: vk.VkExtent2D,
 };
 
+pub fn beginOneTimeCommands(device: vk.VkDevice, pool: vk.VkCommandPool) vk.VkCommandBuffer {
+    var alloc_info = std.mem.zeroes(vk.VkCommandBufferAllocateInfo);
+    alloc_info.sType = vk.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    alloc_info.level = vk.VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandPool = pool;
+    alloc_info.commandBufferCount = 1;
+
+    var cmd: vk.VkCommandBuffer = undefined;
+    _ = vk.vkAllocateCommandBuffers(device, &alloc_info, &cmd);
+
+    var begin_info = std.mem.zeroes(vk.VkCommandBufferBeginInfo);
+    begin_info.sType = vk.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    begin_info.flags = vk.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    _ = vk.vkBeginCommandBuffer(cmd, &begin_info);
+
+    return cmd;
+}
+
+pub fn endOneTimeCommands(device: vk.VkDevice, pool: vk.VkCommandPool, queue: vk.VkQueue, cmd: vk.VkCommandBuffer) void {
+    _ = vk.vkEndCommandBuffer(cmd);
+
+    var submit_info = std.mem.zeroes(vk.VkSubmitInfo);
+    submit_info.sType = vk.VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &cmd;
+
+    _ = vk.vkQueueSubmit(queue, 1, &submit_info, null);
+    _ = vk.vkQueueWaitIdle(queue);
+
+    vk.vkFreeCommandBuffers(device, pool, 1, &cmd);
+}
+
 const MAX_FRAMES_IN_FLIGHT = 2;
 
 pub const OpenSimCommandBuffer = struct {
