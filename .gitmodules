@@ -7,3 +7,6 @@
 [submodule "libs/glfw"]
 	path = libs/glfw
 	url = https://github.com/glfw/glfw
+[submodule "libs/zlm"]
+	path = libs/zlm
+	url = https://github.com/ziglibs/zlm

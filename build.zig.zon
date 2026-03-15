@@ -19,6 +19,9 @@
         .vulkan_zig = .{
             .path = "libs/vulkan-zig",
         },
+        .zlm = .{
+            .path = "libs/zlm",
+        },
     },
     .fingerprint = 0xb0108dbc33b26910,
 }

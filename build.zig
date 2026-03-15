@@ -9,6 +9,8 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+    const zlm = b.dependency("zlm", .{});
+    mod.addImport("zlm", zlm.module("zlm"));
 
     const exe = b.addExecutable(.{
         .name = "opensim",
@@ -19,6 +21,12 @@ pub fn build(b: *std.Build) void {
     const jolt = buildJolt(b, target, optimize);
     const imgui = buildImGui(b, target, optimize);
     compileShaders(b, exe);
+    const install_shaders = b.addInstallDirectory(.{
+        .source_dir = b.path("shaders"),
+        .install_dir = .bin,
+        .install_subdir = "shaders",
+    });
+    exe.step.dependOn(&install_shaders.step);
 
     exe.linkLibrary(glfw);
     exe.linkLibrary(jolt);
@@ -129,8 +137,10 @@ fn buildImGui(
 
 fn compileShaders(b: *std.Build, exe: *std.Build.Step.Compile) void {
     const shaders = [_][2][]const u8{
-        .{ "shaders/triangle.vert", "shaders/triangle.vert.spv" },
-        .{ "shaders/triangle.frag", "shaders/triangle.frag.spv" },
+        .{ "shaders/ui.frag", "shaders/ui.frag.spv" },
+        .{ "shaders/ui.vert", "shaders/ui.vert.spv" },
+        .{ "shaders/mesh.frag", "shaders/mesh.frag.spv" },
+        .{ "shaders/mesh.vert", "shaders/mesh.vert.spv" },
     };
 
     for (shaders) |shader| {
